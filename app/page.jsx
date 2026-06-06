@@ -181,13 +181,23 @@ const navBtnStyle=(active)=>({
 // ── Shared sidebar internals ─────────────────────────────────────
 function SidebarContent({view,setView,reminders=[],onNav}) {
   const pendingCount=reminders.filter(r=>!r.done&&!r.snoozed).length;
+  const now=useClock();
+  const timeStr=now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
+  const [t,ap]=timeStr.split(" ");
   return (
     <>
-      <div style={{padding:"18px 16px 14px",display:"flex",alignItems:"center",gap:11,borderBottom:"1px solid var(--border)",flexShrink:0}}>
+      {/* Header with logo + clock */}
+      <div style={{padding:"16px 16px 14px",display:"flex",alignItems:"center",gap:11,borderBottom:"1px solid var(--border)",flexShrink:0}}>
         <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)"}}>
           <LogoMark size={20}/>
         </div>
-        <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px"}}>FocusFlow</span>
+        <div style={{flex:1,minWidth:0}}>
+          <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",display:"block"}}>FocusFlow</span>
+          <div style={{display:"flex",alignItems:"baseline",gap:3,marginTop:1}}>
+            <span style={{color:"var(--muted)",fontSize:12,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{t}</span>
+            <span style={{color:"var(--accent)",fontSize:9,fontWeight:700}}>{ap}</span>
+          </div>
+        </div>
       </div>
       <nav style={{flex:1,padding:"10px 8px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
         {NAV.map(({id,label,Icon})=>(
@@ -336,7 +346,7 @@ function Dashboard({tasks,habits,sessions,notes,planner,reminders,setView}) {
 
   const scoreColor = prodScore>=70?"#22c55e":prodScore>=40?"#f59e0b":"#ef4444";
 
-  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
   const [timePart, ampm] = timeStr.split(" ");
   const dateStr = now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 
@@ -346,22 +356,12 @@ function Dashboard({tasks,habits,sessions,notes,planner,reminders,setView}) {
     <div style={{padding:"28px 32px",maxWidth:900}} className="fade-up">
 
       {/* ── Greeting header ── */}
-      <div style={{marginBottom:28,display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap"}}>
-        <div>
-          <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:5}}>
-            <span style={{fontSize:24}}>{greetEmoji}</span>
-            <h1 style={{
-              fontSize:28,fontWeight:800,letterSpacing:"-0.8px",lineHeight:1,margin:0,
-              color:"var(--text)",
-            }}>{greet()}</h1>
-          </div>
-          <p style={{
-            color:"var(--muted)",fontSize:15,fontWeight:500,
-            letterSpacing:"0.1px",margin:0,
-          }}>{dateStr}</p>
+      <div style={{marginBottom:28}}>
+        <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:5}}>
+          <span style={{fontSize:24}}>{greetEmoji}</span>
+          <h1 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.8px",lineHeight:1,margin:0,color:"var(--text)"}}>{greet()}</h1>
         </div>
-
-
+        <p style={{color:"var(--muted)",fontSize:15,fontWeight:500,letterSpacing:"0.1px",margin:0}}>{dateStr}</p>
       </div>
 
       {/* Top stats */}
@@ -1665,36 +1665,30 @@ function SettingsView({settings,setSettings,tasks,habits,sessions,notes,reminder
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  TOP BAR  — entire bar is the sidebar trigger
-// ═══════════════════════════════════════════════════════════════════
 function TopBar({view,setSidebarOpen}) {
   const nav=NAV.find(n=>n.id===view);
   const [hovered,setHovered]=useState(false);
+  const now=useClock();
+  const timeStr=now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:true});
+  const [t,ap]=timeStr.split(" ");
   return (
     <header
       onClick={()=>setSidebarOpen(true)}
       onMouseEnter={()=>setHovered(true)}
       onMouseLeave={()=>setHovered(false)}
-      style={{
-        height:52,flexShrink:0,display:"flex",alignItems:"center",gap:13,
-        padding:"0 22px",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",
-        borderBottom:"1px solid var(--border)",zIndex:30,
-        cursor:"pointer",userSelect:"none",transition:"background .15s ease",
-      }}>
-      {/* Logo badge */}
+      style={{height:52,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"0 22px",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:30,cursor:"pointer",userSelect:"none",transition:"background .15s ease"}}>
       <div style={{width:34,height:34,borderRadius:10,flexShrink:0,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)",pointerEvents:"none"}}>
         <LogoMark size={20}/>
       </div>
-      {/* App + current view */}
       <div style={{display:"flex",alignItems:"baseline",gap:9,pointerEvents:"none"}}>
         <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.4px"}}>FocusFlow</span>
         {nav&&<><span style={{color:"var(--muted)",fontSize:13}}>·</span><span style={{color:"var(--muted)",fontSize:13,fontWeight:500}}>{nav.label}</span></>}
       </div>
-      {/* Date — right side */}
-      <span style={{marginLeft:"auto",color:"var(--muted)",fontSize:12,flexShrink:0,pointerEvents:"none"}}>
-        {new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
-      </span>
+      {/* Live clock — right side */}
+      <div style={{marginLeft:"auto",display:"flex",alignItems:"baseline",gap:3,pointerEvents:"none",flexShrink:0}}>
+        <span style={{color:"var(--text)",fontSize:13,fontWeight:700,letterSpacing:"-0.3px",fontVariantNumeric:"tabular-nums"}}>{t}</span>
+        <span style={{color:"var(--accent)",fontSize:9,fontWeight:700}}>{ap}</span>
+      </div>
     </header>
   );
 }
