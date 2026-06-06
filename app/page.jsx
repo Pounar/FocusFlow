@@ -21,12 +21,7 @@ const DB = {
 };
 
 function useStore(key, init) {
-  const initial = typeof init === "function" ? init() : init;
-  const [val, setVal] = useState(initial);
-  useEffect(() => {
-    const stored = DB.get(key, initial);
-    setVal(stored);
-  }, [key]);
+  const [val, setVal] = useState(() => DB.get(key, typeof init === "function" ? init() : init));
   const set = useCallback((updater) => {
     setVal(prev => {
       const next = typeof updater === "function" ? updater(prev) : updater;
@@ -163,39 +158,95 @@ const NAV = [
   {id:"settings",  label:"Settings",    Icon:Settings},
 ];
 
-function Sidebar({view, setView, open, setOpen, reminders=[]}) {
-  const pendingCount = reminders.filter(r=>!r.done&&!r.snoozed).length;
-  const nav = (id,label,Icon) => ({
-    display:"flex",alignItems:"center",gap:13,padding:"10px 15px",borderRadius:10,
-    border:"none",cursor:"pointer",width:"100%",textAlign:"left",fontFamily:"inherit",
-    background:view===id?"var(--accent)":"transparent",
-    color:view===id?"#fff":"var(--muted)",
-    fontSize:14,fontWeight:view===id?600:400,
-  });
+// ── Responsive breakpoint hook ───────────────────────────────────
+function useIsDesktop(bp=960) {
+  const [desk,setDesk]=useState(()=>typeof window!=="undefined"?window.innerWidth>=bp:true);
+  useEffect(()=>{
+    const fn=()=>setDesk(window.innerWidth>=bp);
+    window.addEventListener("resize",fn);
+    return()=>window.removeEventListener("resize",fn);
+  },[bp]);
+  return desk;
+}
+
+// ── Shared nav-button style ──────────────────────────────────────
+const navBtnStyle=(active)=>({
+  display:"flex",alignItems:"center",gap:13,padding:"10px 15px",borderRadius:10,
+  border:"none",cursor:"pointer",width:"100%",textAlign:"left",fontFamily:"inherit",
+  background:active?"var(--accent)":"transparent",
+  color:active?"#fff":"var(--muted)",
+  fontSize:14,fontWeight:active?600:400,
+});
+
+// ── Shared sidebar internals ─────────────────────────────────────
+function SidebarContent({view,setView,reminders=[],onNav}) {
+  const pendingCount=reminders.filter(r=>!r.done&&!r.snoozed).length;
+  return (
+    <>
+      <div style={{padding:"18px 16px 14px",display:"flex",alignItems:"center",gap:11,borderBottom:"1px solid var(--border)",flexShrink:0}}>
+        <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)"}}>
+          <LogoMark size={20}/>
+        </div>
+        <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px"}}>FocusFlow</span>
+      </div>
+      <nav style={{flex:1,padding:"10px 8px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
+        {NAV.map(({id,label,Icon})=>(
+          <button key={id} style={navBtnStyle(view===id)} onClick={()=>onNav(id)}>
+            <Icon size={17} style={{flexShrink:0}}/>
+            <span style={{flex:1}}>{label}</span>
+            {id==="reminders"&&pendingCount>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pendingCount}</span>}
+          </button>
+        ))}
+      </nav>
+      <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+        <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
+          Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
+        </p>
+      </div>
+    </>
+  );
+}
+
+function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
+  if(persistent) {
+    // Desktop: always-visible left rail, part of the normal document flow
+    return (
+      <aside style={{width:230,flexShrink:0,height:"100%",display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)"}}>
+        <SidebarContent view={view} setView={setView} reminders={reminders} onNav={id=>setView(id)}/>
+      </aside>
+    );
+  }
+
+  // Mobile: overlay drawer (unchanged behaviour)
   return (
     <>
       {open&&<div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:40,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",animation:"fadeIn .2s ease"}}/>}
       <aside style={{position:"fixed",top:0,left:0,height:"100vh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none"}}>
-        <div style={{padding:"20px 16px 16px",display:"flex",alignItems:"center",gap:11,borderBottom:"1px solid var(--border)",flexShrink:0}}>
-          <div style={{width:38,height:38,borderRadius:11,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 18px rgba(120,80,255,0.55),inset 0 1px 0 rgba(255,255,255,0.18)"}}>
-            <LogoMark size={22}/>
+        <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
+          <div style={{display:"flex",alignItems:"center",padding:"20px 16px 16px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:11}}>
+            <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
+              <LogoMark size={20}/>
+            </div>
+            <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
+            <button onClick={()=>setOpen(false)} style={{width:28,height:28,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={14}/></button>
           </div>
-          <span style={{color:"var(--text)",fontWeight:800,fontSize:17,letterSpacing:"-.5px"}}>FocusFlow</span>
-          <button onClick={()=>setOpen(false)} style={{marginLeft:"auto",width:28,height:28,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={14}/></button>
-        </div>
-        <nav style={{flex:1,padding:"10px 8px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
-          {NAV.map(({id,label,Icon})=>(
-            <button key={id} style={nav(id,label,Icon)} onClick={()=>{setView(id);setOpen(false);}}>
-              <Icon size={17} style={{flexShrink:0}}/>
-              <span style={{flex:1}}>{label}</span>
-              {id==="reminders"&&pendingCount>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pendingCount}</span>}
-            </button>
-          ))}
-        </nav>
-        <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
-          <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
-            Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
-          </p>
+          <nav style={{flex:1,padding:"10px 8px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
+            {NAV.map(({id,label,Icon})=>{
+              const pending=id==="reminders"&&reminders.filter(r=>!r.done&&!r.snoozed).length;
+              return (
+                <button key={id} style={navBtnStyle(view===id)} onClick={()=>{setView(id);setOpen(false);}}>
+                  <Icon size={17} style={{flexShrink:0}}/>
+                  <span style={{flex:1}}>{label}</span>
+                  {pending>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pending}</span>}
+                </button>
+              );
+            })}
+          </nav>
+          <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+            <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
+              Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
+            </p>
+          </div>
         </div>
       </aside>
     </>
@@ -674,30 +725,22 @@ function FocusView({sessions,setSessions,settings,setSettings}) {
   const breakDur  = (settings.breakDur  || 5)  * 60;
   const lbDur     = (settings.lbDur     || 15) * 60;
 
-  const [mode,setMode]   = useState("focus");
-  const [left,setLeft]   = useState(focusDur);
-  const [running,setRunning] = useState(false);
-  const [cycles,setCycles]   = useState(0);
-  const td = todayDs();
-
-  useEffect(() => {
-    const savedMode = DB.get("timer_mode","focus");
-    const savedCycles = DB.get("timer_cycles",0);
+  const [mode,setMode]   = useState(()=>DB.get("timer_mode","focus"));
+  const [left,setLeft]   = useState(()=>{
     const saved = DB.get("timer_state",null);
-    let initialLeft = focusDur;
-    if (saved && saved.mode) {
+    if(saved&&saved.mode) {
       const dur = saved.mode==="focus"?focusDur:saved.mode==="break"?breakDur:lbDur;
-      if (saved.running && saved.pausedAt) {
+      if(saved.running&&saved.pausedAt) {
         const elapsed = Math.floor((Date.now()-saved.pausedAt)/1000);
-        initialLeft = Math.max(0, saved.left-elapsed);
-      } else {
-        initialLeft = saved.left || dur;
+        return Math.max(0,saved.left-elapsed);
       }
-      setMode(saved.mode);
+      return saved.left||dur;
     }
-    setLeft(initialLeft);
-    setCycles(savedCycles);
-  }, []);
+    return focusDur;
+  });
+  const [running,setRunning] = useState(false);
+  const [cycles,setCycles]   = useState(()=>DB.get("timer_cycles",0));
+  const td = todayDs();
 
   // Persist timer state
   useEffect(()=>{
@@ -1058,14 +1101,8 @@ function RemindersView({reminders,setReminders}) {
   const [form,setForm]   = useState({title:"",desc:"",date:todayDs(),time:"09:00",recurring:"none"});
   const [showAdd,setAdd] = useState(false);
   const [editId,setEdit] = useState(null);
-  const [notifPerm,setPerm]=useState("denied");
+  const [notifPerm,setPerm]=useState(()=>typeof Notification!=="undefined"?Notification.permission:"denied");
   const [filter,setFilter]=useState("upcoming");
-
-  useEffect(() => {
-    if (typeof Notification !== "undefined") {
-      setPerm(Notification.permission);
-    }
-  }, []);
 
   const requestPerm = async () => {
     if(typeof Notification==="undefined") return;
@@ -1541,13 +1578,6 @@ function AnalyticsView({tasks,habits,sessions,planner}) {
 // ═══════════════════════════════════════════════════════════════════
 function SettingsView({settings,setSettings,tasks,habits,sessions,notes,reminders}) {
   const [exportMsg,setExportMsg]=useState("");
-  const [notifPerm,setNotifPerm]=useState("unavailable");
-
-  useEffect(() => {
-    if (typeof Notification !== "undefined") {
-      setNotifPerm(Notification.permission);
-    }
-  }, []);
 
   const exportData=()=>{
     const data={tasks,habits,sessions,notes,reminders,exportedAt:new Date().toISOString()};
@@ -1608,7 +1638,7 @@ function SettingsView({settings,setSettings,tasks,habits,sessions,notes,reminder
       </Section>
 
       <Section title="Notifications">
-        <Row label="Browser notifications" sub={`Permission: ${notifPerm}`} right={
+        <Row label="Browser notifications" sub={`Permission: ${typeof Notification!=="undefined"?Notification.permission:"unavailable"}`} right={
           <Toggle on={settings.notifications} onToggle={()=>{
             if(typeof Notification!=="undefined"&&Notification.permission!=="granted"){
               Notification.requestPermission().then(p=>setSettings(s=>({...s,notifications:p==="granted"})));
@@ -1641,12 +1671,6 @@ function SettingsView({settings,setSettings,tasks,habits,sessions,notes,reminder
 function TopBar({view,setSidebarOpen}) {
   const nav=NAV.find(n=>n.id===view);
   const [hovered,setHovered]=useState(false);
-  const [todayLabel,setTodayLabel]=useState("");
-
-  useEffect(() => {
-    setTodayLabel(new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}));
-  }, []);
-
   return (
     <header
       onClick={()=>setSidebarOpen(true)}
@@ -1669,7 +1693,7 @@ function TopBar({view,setSidebarOpen}) {
       </div>
       {/* Date — right side */}
       <span style={{marginLeft:"auto",color:"var(--muted)",fontSize:12,flexShrink:0,pointerEvents:"none"}}>
-        {todayLabel}
+        {new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
       </span>
     </header>
   );
@@ -1714,6 +1738,7 @@ export default function App() {
   },[]);
 
   const theme=settings.theme==="light"?LIGHT:DARK;
+  const isDesktop=useIsDesktop();
 
   const VIEWS={
     dashboard: <Dashboard tasks={tasks} habits={habits} sessions={sessions} notes={notes} planner={planner} reminders={reminders} setView={setView}/>,
@@ -1731,15 +1756,26 @@ export default function App() {
   return (
     <>
       <style>{getCSS(theme)}</style>
-      <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"var(--bg)",overflow:"hidden"}}>
-        <TopBar view={view} setSidebarOpen={setSD}/>
-        <div style={{flex:1,overflow:"hidden",position:"relative"}}>
-          <Sidebar view={view} setView={setView} open={sideOpen} setOpen={setSD} reminders={reminders}/>
-          <main style={{height:"100%",overflowY:"auto",background:"var(--bg)"}}>
+      {isDesktop ? (
+        /* ── DESKTOP: persistent left sidebar + content ── */
+        <div style={{display:"flex",flexDirection:"row",height:"100vh",background:"var(--bg)",overflow:"hidden"}}>
+          <Sidebar view={view} setView={setView} open={false} setOpen={()=>{}} reminders={reminders} persistent={true}/>
+          <main style={{flex:1,overflowY:"auto",background:"var(--bg)"}}>
             {VIEWS[view]}
           </main>
         </div>
-      </div>
+      ) : (
+        /* ── MOBILE: top bar + overlay drawer ── */
+        <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"var(--bg)",overflow:"hidden"}}>
+          <TopBar view={view} setSidebarOpen={setSD}/>
+          <div style={{flex:1,overflow:"hidden",position:"relative"}}>
+            <Sidebar view={view} setView={setView} open={sideOpen} setOpen={setSD} reminders={reminders} persistent={false}/>
+            <main style={{height:"100%",overflowY:"auto",background:"var(--bg)"}}>
+              {VIEWS[view]}
+            </main>
+          </div>
+        </div>
+      )}
     </>
   );
 }
