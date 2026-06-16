@@ -232,22 +232,22 @@ function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
   return (
     <>
       {open&&<div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:40,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",animation:"fadeIn .2s ease"}}/>}
-      <aside style={{position:"fixed",top:0,left:0,height:"100vh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none"}}>
-        {/* Header */}
-        <div style={{display:"flex",alignItems:"center",padding:"20px 16px 16px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:11}}>
-          <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
-            <LogoMark size={20}/>
+      <aside style={{position:"fixed",top:0,left:0,height:"100%",height:"100dvh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none"}}>
+        {/* Header — compact */}
+        <div style={{display:"flex",alignItems:"center",padding:"14px 14px 12px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:10}}>
+          <div style={{width:32,height:32,borderRadius:9,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
+            <LogoMark size={18}/>
           </div>
-          <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
-          <button onClick={()=>setOpen(false)} style={{width:28,height:28,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={14}/></button>
+          <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
+          <button onClick={()=>setOpen(false)} style={{width:26,height:26,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={13}/></button>
         </div>
-        {/* Nav — flex:1 + minHeight:0 makes it scroll without pushing watermark out */}
-        <nav style={{flex:1,minHeight:0,overflowY:"auto",padding:"10px 8px",display:"flex",flexDirection:"column",gap:2}}>
+        {/* Nav — shrinks to fit, no scroll */}
+        <nav style={{flex:1,minHeight:0,padding:"6px 8px",display:"flex",flexDirection:"column",gap:1}}>
           {NAV.map(({id,label,Icon})=>{
             const pending=id==="reminders"&&reminders.filter(r=>!r.done&&!r.snoozed).length;
             return (
-              <button key={id} style={navBtnStyle(view===id)} onClick={()=>{setView(id);setOpen(false);}}>
-                <Icon size={17} style={{flexShrink:0}}/>
+              <button key={id} style={{...navBtnStyle(view===id),padding:"8px 13px",fontSize:13}} onClick={()=>{setView(id);setOpen(false);}}>
+                <Icon size={16} style={{flexShrink:0}}/>
                 <span style={{flex:1}}>{label}</span>
                 {pending>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pending}</span>}
               </button>
@@ -255,7 +255,7 @@ function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
           })}
         </nav>
         {/* Watermark — always pinned at bottom */}
-        <div style={{flexShrink:0,padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+        <div style={{flexShrink:0,padding:"10px 18px 14px",borderTop:"1px solid var(--border)"}}>
           <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
             Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
           </p>
