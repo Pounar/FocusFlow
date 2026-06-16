@@ -228,36 +228,37 @@ function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
     );
   }
 
-  // Mobile: overlay drawer (unchanged behaviour)
+  // Mobile: overlay drawer
   return (
     <>
       {open&&<div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:40,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",animation:"fadeIn .2s ease"}}/>}
       <aside style={{position:"fixed",top:0,left:0,height:"100vh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none"}}>
-        <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
-          <div style={{display:"flex",alignItems:"center",padding:"20px 16px 16px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:11}}>
-            <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
-              <LogoMark size={20}/>
-            </div>
-            <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
-            <button onClick={()=>setOpen(false)} style={{width:28,height:28,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={14}/></button>
+        {/* Header */}
+        <div style={{display:"flex",alignItems:"center",padding:"20px 16px 16px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:11}}>
+          <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
+            <LogoMark size={20}/>
           </div>
-          <nav style={{flex:1,padding:"10px 8px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
-            {NAV.map(({id,label,Icon})=>{
-              const pending=id==="reminders"&&reminders.filter(r=>!r.done&&!r.snoozed).length;
-              return (
-                <button key={id} style={navBtnStyle(view===id)} onClick={()=>{setView(id);setOpen(false);}}>
-                  <Icon size={17} style={{flexShrink:0}}/>
-                  <span style={{flex:1}}>{label}</span>
-                  {pending>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pending}</span>}
-                </button>
-              );
-            })}
-          </nav>
-          <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)",flexShrink:0}}>
-            <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
-              Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
-            </p>
-          </div>
+          <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
+          <button onClick={()=>setOpen(false)} style={{width:28,height:28,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={14}/></button>
+        </div>
+        {/* Nav — flex:1 + minHeight:0 makes it scroll without pushing watermark out */}
+        <nav style={{flex:1,minHeight:0,overflowY:"auto",padding:"10px 8px",display:"flex",flexDirection:"column",gap:2}}>
+          {NAV.map(({id,label,Icon})=>{
+            const pending=id==="reminders"&&reminders.filter(r=>!r.done&&!r.snoozed).length;
+            return (
+              <button key={id} style={navBtnStyle(view===id)} onClick={()=>{setView(id);setOpen(false);}}>
+                <Icon size={17} style={{flexShrink:0}}/>
+                <span style={{flex:1}}>{label}</span>
+                {pending>0&&<span style={{background:"#ef4444",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"1px 6px"}}>{pending}</span>}
+              </button>
+            );
+          })}
+        </nav>
+        {/* Watermark — always pinned at bottom */}
+        <div style={{flexShrink:0,padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+          <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
+            Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
+          </p>
         </div>
       </aside>
     </>
