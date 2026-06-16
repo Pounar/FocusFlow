@@ -253,7 +253,7 @@ function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
               );
             })}
           </nav>
-          <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)"}}>
+          <div style={{padding:"14px 18px",borderTop:"1px solid var(--border)",flexShrink:0}}>
             <p style={{color:"var(--muted)",fontSize:11,letterSpacing:"0.4px",textAlign:"center"}}>
               Built by <span style={{color:"var(--accent)",fontWeight:700,letterSpacing:0}}>Pounar</span>
             </p>
