@@ -1678,14 +1678,15 @@ function TopBar({view,setSidebarOpen}) {
       onClick={()=>setSidebarOpen(true)}
       onMouseEnter={()=>setHovered(true)}
       onMouseLeave={()=>setHovered(false)}
-      style={{height:52,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"0 22px",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:30,cursor:"pointer",userSelect:"none",transition:"background .15s ease"}}>
+      style={{height:62,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"10px 22px 0",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:30,cursor:"pointer",userSelect:"none",transition:"background .15s ease",position:"relative"}}>
       <div style={{width:34,height:34,borderRadius:10,flexShrink:0,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)",pointerEvents:"none"}}>
         <LogoMark size={20}/>
       </div>
-      <div style={{display:"flex",alignItems:"baseline",gap:9,pointerEvents:"none"}}>
-        <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.4px"}}>FocusFlow</span>
-        {nav&&<><span style={{color:"var(--muted)",fontSize:13}}>·</span><span style={{color:"var(--muted)",fontSize:13,fontWeight:500}}>{nav.label}</span></>}
+      <div style={{display:"flex",flexDirection:"column",gap:4,pointerEvents:"none"}}>
+        <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.4px",lineHeight:1}}>FocusFlow</span>
+        {nav&&<span style={{color:"var(--muted)",fontSize:11,fontWeight:500,lineHeight:1}}>{nav.label}</span>}
       </div>
+      <span style={{position:"absolute",left:"50%",top:"50%",transform:"translate(-50%,-50%)",color:"var(--muted)",fontSize:12,fontWeight:600,letterSpacing:"0.3px",opacity:0.75,pointerEvents:"none",whiteSpace:"nowrap"}}>Tap to browse menu</span>
       {/* Live clock — right side */}
       <div style={{marginLeft:"auto",display:"flex",alignItems:"baseline",gap:3,pointerEvents:"none",flexShrink:0}}>
         <span style={{color:"var(--text)",fontSize:13,fontWeight:700,letterSpacing:"-0.3px",fontVariantNumeric:"tabular-nums"}}>{t}</span>
