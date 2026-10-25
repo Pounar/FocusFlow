@@ -161,7 +161,7 @@ const NAV = [
 
 // ── Responsive breakpoint hook ───────────────────────────────────
 function useIsDesktop(bp=960) {
-  const [desk,setDesk]=useState(()=>typeof window!=="undefined"?window.innerWidth>=bp:true);
+  const [desk,setDesk]=useState(true);
   useEffect(()=>{
     const fn=()=>setDesk(window.innerWidth>=bp);
     window.addEventListener("resize",fn);
@@ -196,7 +196,7 @@ function SidebarContent({view,setView,reminders=[],onNav}) {
           <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",display:"block"}}>FocusFlow</span>
           <div style={{display:"flex",alignItems:"baseline",gap:3,marginTop:1}}>
             <span style={{color:"var(--muted)",fontSize:12,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{t}</span>
-            <span style={{color:"var(--accent)",fontSize:9,fontWeight:700}}>{ap}</span>
+            <span style={{color:"var(--text)",fontSize:9,fontWeight:700}}>{ap}</span>
           </div>
         </div>
       </div>
@@ -1686,11 +1686,11 @@ function TopBar({view,setSidebarOpen}) {
         <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.4px",lineHeight:1}}>FocusFlow</span>
         {nav&&<span style={{color:"var(--muted)",fontSize:11,fontWeight:500,lineHeight:1}}>{nav.label}</span>}
       </div>
-      <span style={{position:"absolute",left:"50%",top:"50%",transform:"translate(-50%,-50%)",color:"var(--muted)",fontSize:12,fontWeight:600,letterSpacing:"0.3px",opacity:0.75,pointerEvents:"none",whiteSpace:"nowrap"}}>Tap to browse menu</span>
+      <span style={{position:"absolute",left:"50%",top:"calc(50% + 14px)",transform:"translate(-50%,-50%)",color:"var(--muted)",fontSize:12,fontWeight:600,letterSpacing:"0.3px",opacity:0.75,pointerEvents:"none",whiteSpace:"nowrap"}}>Tap to browse menu</span>
       {/* Live clock — right side */}
       <div style={{marginLeft:"auto",display:"flex",alignItems:"baseline",gap:3,pointerEvents:"none",flexShrink:0}}>
         <span style={{color:"var(--text)",fontSize:13,fontWeight:700,letterSpacing:"-0.3px",fontVariantNumeric:"tabular-nums"}}>{t}</span>
-        <span style={{color:"var(--accent)",fontSize:9,fontWeight:700}}>{ap}</span>
+        <span style={{color:"var(--text)",fontSize:9,fontWeight:700}}>{ap}</span>
       </div>
     </header>
   );
