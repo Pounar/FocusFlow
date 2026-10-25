@@ -195,7 +195,7 @@ function SidebarContent({view,setView,reminders=[],onNav}) {
         <div style={{flex:1,minWidth:0}}>
           <span style={{color:"var(--text)",fontWeight:800,fontSize:16,letterSpacing:"-.5px",display:"block"}}>FocusFlow</span>
           <div style={{display:"flex",alignItems:"baseline",gap:3,marginTop:1}}>
-            <span style={{color:"var(--muted)",fontSize:12,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{t}</span>
+            <span style={{color:"var(--text)",fontSize:12,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{t}</span>
             <span style={{color:"var(--text)",fontSize:9,fontWeight:700}}>{ap}</span>
           </div>
         </div>
