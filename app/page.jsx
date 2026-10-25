@@ -1667,7 +1667,7 @@ function SettingsView({settings,setSettings,tasks,habits,sessions,notes,reminder
   );
 }
 
-function TopBar({view,setSidebarOpen}) {
+function TopBar({view,sidebarOpen,setSidebarOpen}) {
   const nav=NAV.find(n=>n.id===view);
   const [hovered,setHovered]=useState(false);
   const now=useClock();
@@ -1675,10 +1675,10 @@ function TopBar({view,setSidebarOpen}) {
   const [t,ap]=timeStr.split(" ");
   return (
     <header
-      onClick={()=>setSidebarOpen(true)}
+      onClick={()=>setSidebarOpen(!sidebarOpen)}
       onMouseEnter={()=>setHovered(true)}
       onMouseLeave={()=>setHovered(false)}
-      style={{height:62,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"10px 22px 0",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:30,cursor:"pointer",userSelect:"none",transition:"background .15s ease",position:"relative"}}>
+      style={{height:62,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"10px 22px 0",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:60,cursor:"pointer",userSelect:"none",transition:"background .15s ease",position:"relative"}}>
       <div style={{width:34,height:34,borderRadius:10,flexShrink:0,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)",pointerEvents:"none"}}>
         <LogoMark size={20}/>
       </div>
@@ -1771,7 +1771,7 @@ export default function App() {
       ) : (
         /* ── MOBILE: top bar + overlay drawer ── */
         <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"var(--bg)",overflow:"hidden"}}>
-          <TopBar view={view} setSidebarOpen={setSD}/>
+          <TopBar view={view} sidebarOpen={sideOpen} setSidebarOpen={setSD}/>
           <div style={{flex:1,overflow:"hidden",position:"relative"}}>
             <Sidebar view={view} setView={setView} open={sideOpen} setOpen={setSD} reminders={reminders} persistent={false}/>
             <main style={{height:"100%",overflowY:"auto",background:"var(--bg)"}}>
