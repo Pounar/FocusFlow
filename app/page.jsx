@@ -164,6 +164,7 @@ function useIsDesktop(bp=960) {
   const [desk,setDesk]=useState(true);
   useEffect(()=>{
     const fn=()=>setDesk(window.innerWidth>=bp);
+    fn();
     window.addEventListener("resize",fn);
     return()=>window.removeEventListener("resize",fn);
   },[bp]);
@@ -1675,10 +1676,10 @@ function TopBar({view,sidebarOpen,setSidebarOpen}) {
   const [t,ap]=timeStr.split(" ");
   return (
     <header
-      onClick={()=>setSidebarOpen(!sidebarOpen)}
+      onClick={()=>setSidebarOpen(open=>!open)}
       onMouseEnter={()=>setHovered(true)}
       onMouseLeave={()=>setHovered(false)}
-      style={{height:62,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"10px 22px 0",background:hovered?"rgba(124,106,247,0.06)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:60,cursor:"pointer",userSelect:"none",transition:"background .15s ease",position:"relative"}}>
+      style={{height:62,flexShrink:0,display:"flex",alignItems:"center",gap:13,padding:"10px 22px 0",background:hovered?"var(--elevated)":"var(--surface)",borderBottom:"1px solid var(--border)",zIndex:30,cursor:"pointer",userSelect:"none",transition:"background .15s ease",position:"relative"}}>
       <div style={{width:34,height:34,borderRadius:10,flexShrink:0,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45),inset 0 1px 0 rgba(255,255,255,.18)",pointerEvents:"none"}}>
         <LogoMark size={20}/>
       </div>
