@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "FocusFlow tracker web app",
+  title: "FocusFlow — Start Tracking.",
   description: "FocusFlow productivity tracker web app",
 };
 
