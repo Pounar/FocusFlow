@@ -231,15 +231,15 @@ function Sidebar({view,setView,open,setOpen,reminders=[],persistent=false}) {
   // Mobile: overlay drawer
   return (
     <>
-      {open&&<div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:40,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",animation:"fadeIn .2s ease"}}/>}
-      <aside style={{position:"fixed",top:0,left:0,height:"100%",height:"100dvh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none"}}>
+      {open&&<button aria-label="Close menu" onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:40,border:0,padding:0,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(2px)",animation:"fadeIn .2s ease"}}/>}
+      <aside aria-hidden={!open} style={{position:"fixed",top:0,left:0,height:"100dvh",width:242,zIndex:50,display:"flex",flexDirection:"column",background:"var(--surface)",borderRight:"1px solid var(--border)",transform:open?"translateX(0)":"translateX(-100%)",transition:"transform .3s cubic-bezier(.4,0,.2,1)",boxShadow:open?"8px 0 40px rgba(0,0,0,0.4)":"none",pointerEvents:open?"auto":"none",overflowY:"auto",touchAction:"pan-y"}}>
         {/* Header — compact */}
         <div style={{display:"flex",alignItems:"center",padding:"14px 14px 12px",borderBottom:"1px solid var(--border)",flexShrink:0,gap:10}}>
           <div style={{width:32,height:32,borderRadius:9,background:"linear-gradient(135deg,#6a57f5,#a44af5 60%,#c03aff)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 14px rgba(120,80,255,.45)"}}>
             <LogoMark size={18}/>
           </div>
           <span style={{color:"var(--text)",fontWeight:800,fontSize:15,letterSpacing:"-.5px",flex:1}}>FocusFlow</span>
-          <button onClick={()=>setOpen(false)} style={{width:26,height:26,borderRadius:7,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)"}}><X size={13}/></button>
+          <button aria-label="Close menu" onClick={()=>setOpen(false)} style={{width:44,height:44,borderRadius:9,background:"var(--elevated)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)",flexShrink:0}}><X size={18}/></button>
         </div>
         {/* Nav — shrinks to fit, no scroll */}
         <nav style={{flex:1,minHeight:0,padding:"6px 8px",display:"flex",flexDirection:"column",gap:1}}>
@@ -1702,6 +1702,13 @@ function TopBar({view,setSidebarOpen}) {
 export default function App() {
   const [view,setView]   = useState("dashboard");
   const [sideOpen,setSD] = useState(false);
+
+  useEffect(()=>{
+    if(!sideOpen) return;
+    const closeOnEscape=e=>{if(e.key==="Escape") setSD(false);};
+    window.addEventListener("keydown",closeOnEscape);
+    return()=>window.removeEventListener("keydown",closeOnEscape);
+  },[sideOpen]);
 
   const [tasks,    setTasks]    = useStore("tasks",    []);
   const [habits,   setHabits]   = useStore("habits",   []);
